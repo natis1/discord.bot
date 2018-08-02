@@ -48,9 +48,9 @@ class Developer:
     async def reload_cog(self, ctx, cog: str):
         if str(ctx.message.author) != "56#1363": return
         print(f"Reloading cog {cog}")
-        self.bot.unload_extension(f"cog.{cog}")
+        self.bot.unload_extension(f"cogs.{cog}")
         print(f"Unloading cog {cog}")
-        self.bot.load_extension(f"cog.{cog}")
+        self.bot.load_extension(f"cogs.{cog}")
         print(f"Loading cog {cog}")
 
 

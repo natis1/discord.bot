@@ -1,24 +1,15 @@
 from itertools import chain
 
-from discord import Embed
+from discord import Embed, Member
 from discord.ext.commands import Bot, command
 from discord.utils import get
 
-from utils import first, opt_str, is_mod
+from utils import first, first_or_default, is_mod, opt_str
 
 
 class Roles:
     def __init__(self, bot):
         self.bot: Bot = bot
-
-    async def add_role(self, server, role_name, member):
-        sroles = list(server.roles)
-
-        added_role = first(sroles, lambda x: x.name == role_name)
-        wanderer = first(sroles, lambda x: x.name == "Wanderers")
-
-        roles = [added_role] + [x for x in member.roles if x != wanderer]
-        await self.bot.replace_roles(member, *roles)
 
     # (A,l, i, a, s, e, s): "Role"
     roles = \
@@ -48,7 +39,7 @@ class Roles:
             return
 
         if role in chain(*self.roles):
-            await self.add_role(server, self.roles[first(self.roles, lambda x: role in x)], user)
+            await self.bot.add_role(server, self.roles[first(self.roles, lambda x: role in x)], user)
             return
 
         valid_roles = "Valid roles are: \n" + "\n".join(self.roles.values())
@@ -56,7 +47,7 @@ class Roles:
 
     @command(pass_context=True)
     async def in_role(self, ctx, *, role):
-        role = role.title()
+        role = role.title() if role == role.lower() else role
 
         s = ctx.message.server
         role = get(s.roles, name=role)
@@ -75,7 +66,7 @@ class Roles:
     async def roleping(self, ctx, *, role):
         if not is_mod(ctx): return
 
-        role = role.title()
+        role = role.title() if role == role.lower() else role
         s = ctx.message.server
 
         role = get(s.roles, name=role)
@@ -85,6 +76,11 @@ class Roles:
             return
 
         await self.bot.say(repr([x.mention for x in s.members if role in x.roles]))
+
+    @command(pass_context=True)
+    async def player(self, ctx, mem: Member):
+        if not is_mod(ctx): return
+        await self.bot.add_role(ctx.message.server, "DnD Player", mem)
 
 
 def setup(bot):

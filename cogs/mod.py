@@ -39,13 +39,14 @@ class Moderator:
     async def del_time(self, ctx, after, before=None):
         """Deletes messages given a time at which to start and an optional time at which to end"""
         if not is_mod(ctx): return
-        args = {}
+        args = {
+            'after': get_utc_date(after)
+        }
 
-        if before: args['before'] = get_utc_date(before)
-        args['after'] = get_utc_date(after)
+        if before is not None:
+            args['before'] = get_utc_date(before)
 
         try:
-            print(args['after'])
             await self.bot.purge_from(ctx.message.channel, **args, limit=4000)
         except Exception as e:
             await self.bot.say(e)
@@ -54,7 +55,7 @@ class Moderator:
     async def del_time_user(self, ctx, after, user: User):
         """Deletes messages given a time at which to start and an optional time at which to end"""
         if not is_mod(ctx): return
-        args = {}
+        args = { }
 
         def check_user(msg: Message):
             return msg.author == user
@@ -70,7 +71,7 @@ class Moderator:
     async def del_time_tz(self, ctx, tzi, after, before=None):
         """Deletes messages given a time zone, a time at which to start, and an optional time at which to end"""
         if not is_mod(ctx): return
-        args = {}
+        args = { }
 
         if before: args['before'] = get_utc_date(before, tzi)
         args['after'] = get_utc_date(after, tzi)

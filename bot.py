@@ -10,12 +10,14 @@ from random import choice, randint
 from typing import Dict, List
 
 import discord
-from discord import Channel, Colour, Embed, Forbidden, HTTPException, Permissions
+from discord import Channel, Colour, Embed, Forbidden, HTTPException, Permissions, Message, Emoji, Reaction
+from discord.client import WaitedReaction
 from discord.ext.commands import BadArgument, Bot, BucketType, CommandNotFound, CommandOnCooldown, Context, \
     MissingRequiredArgument, command, cooldown, when_mentioned_or
+from discord.ext.commands.bot import _get_variable
 
 from data import conrad_urls
-from utils import is_mod, make_embed
+from utils import is_mod, make_embed, first, first_or_default
 
 
 class FiftySix(Bot):
@@ -42,8 +44,24 @@ class FiftySix(Bot):
         """self.say but it logs in a channel"""
         try:
             await super().say(*args, **kwargs)
-        # TODO: FORBIDDEN Errors
         except Exception as e:
+            if isinstance(e, Forbidden):
+                # While this may look dumb ("just let the error float up")
+                # The reason we do this is because
+                # we want to allow the command to continue it's execution
+                # even when the bot can't say what it wanted to
+                # e.g adding to queue -- the bot says Adding to Queue
+                # before adding to the queue
+                ctx: Context = _get_variable('ctx')
+
+                try:
+                    channel = ctx.message.channel
+                    await self.send_message(channel, "Bot is missing permissions for command {command}.")
+                except Forbidden:  # ree
+                    author = ctx.message.author
+                    await self.send_message(author, f"Command {ctx.command} failed due to missing permissions.")
+                return
+
             await self.send_message(self.get_channel("467063734800744448"), e)
 
     command_channels: Dict[str, str] = \
@@ -57,7 +75,7 @@ class FiftySix(Bot):
             "jonnypls":  "serialized"
         }
 
-    command_messages: Dict[str, list] = {}
+    command_messages: Dict[str, list] = { }
 
     async def get_commands(self):
         def make_cmd(_key):
@@ -123,6 +141,7 @@ class FiftySix(Bot):
             "repeat",
             "invite",
             "dice",
+            "delet_meme",
         ]
 
     async def on_ready(self):
@@ -132,8 +151,9 @@ class FiftySix(Bot):
         print(self.user.id)
         print('------')
 
-        self.edit_profile(username="56 but bot")
         await self.get_commands()
+
+        self.edit_profile(username="56 but bot")
 
     @command(pass_context=True)
     async def say_in(self, ctx, channel: Channel, *, msg: str):
@@ -240,26 +260,6 @@ class FiftySix(Bot):
 
         await self.say(f"<{discord.utils.oauth_url('410926210017656852', permissions=permissions)}>")
 
-    # Predefined bot responses to certain messages
-    predefined: Dict[str, str] = \
-        {
-            "angle":           "is bad at hk",
-            "avenging angle":  "needs easy mode to play hk",
-            "faeren":          "does not want to be called gay",
-            "nth":             "karoeke",
-            "papers":          "Yeah, I wish Papers was here too",
-            "perdungo":        "also not having 56 but bot respond to my name is a good thing\n"
-                               "means I'm not known enough to be hated",
-            "danny":           "I am too gay for 56's standards",
-            "molamola":        "<:hollowgay:460403705036931072>",
-            "banana":          "🍌",
-            "goldenlightning": "I bet I'm not gay enough for 56 to add a response for 56 but bot when someone says my "
-                               "name <:grimmdab:459946281457156116> ",
-            "!registry":       "https://docs.google.com/forms/d/1Y41WQcCg0gH40FY1aviC7cp4w-QqFrM2gLgwz3U9_OQ/edit",
-            "sumwan": "<:grimmdab:459946281457156116>",
-            "spagetti": "🍝",
-        }
-
     server_prefix: Dict[str, str] = \
         {
             "280800571760574464": ";",
@@ -269,12 +269,17 @@ class FiftySix(Bot):
     void_server = "453739385683312650"
     void_channel = "459925254559629312"
 
-    async def on_message(self, message):
-        if message.content.lower() in self.predefined:
-            # Predefined bot responses from dict
-            await self.send_message(message.channel, self.predefined[message.content.lower()])
+    async def add_role(self, server, role_name, member):
+        sroles = list(server.roles)
 
-        if message.server.id in self.server_prefix and message.content:
+        added_role = first(sroles, lambda x: x.name == role_name)
+        wanderer = first_or_default(sroles, lambda x: x.name == "Wanderers")
+
+        roles = [added_role] + [x for x in member.roles if x != wanderer]
+        await self.replace_roles(member, *roles)
+
+    async def on_message(self, message):
+        if message.server and message.server.id in self.server_prefix and message.content:
             if message.content[0] == self.server_prefix[message.server.id]:
                 message.content = "!" + message.content[1:]
             elif message.content[0] == "!":
@@ -355,13 +360,50 @@ class FiftySix(Bot):
             if num > 15: return
             await self.delet_this(message, num + 1)
 
+    @command()
+    async def delet_meme(self, channel, msg):
+        x = "❌"
+
+        delet_channel = self.get_channel("474594963359924235")
+
+        channel: Channel = self.get_channel(self.command_channels[channel])
+        k: Message = await self.get_message(channel, msg)
+
+        e = Embed(title="Delete?")
+
+        if k.attachments:
+            e.set_image(url=k.attachments[0]['url'])
+        if k.embeds:
+            with(suppress(IndexError, KeyError)):
+                e.set_image(url=k.embeds[0]['image']['url'])
+
+        msg = await self.send_message(delet_channel, embed=e)
+
+        self.add_reaction(msg,    x)
+        self.add_reaction(msg, "✅")
+
+        while True:
+            r: WaitedReaction = await self.wait_for_reaction(emoji=x)
+
+            if r is None:
+                continue
+
+            if r.reaction.emoji != "✅" and r.reaction.emoji != x:
+                continue
+
+            if r.reaction.count >= 2:
+                if r.reaction.emoji == "✅":
+                    await self.delete_message(k)
+                await self.delete_message(msg)
+                return
+
     async def on_command_error(self, e, ctx: Context):
         if isinstance(e, (CommandNotFound, CommandOnCooldown, MissingRequiredArgument, BadArgument)):
             return
 
         if isinstance(e, Forbidden):
             try:
-                await self.send_message(ctx.message.channel, "Missing Permissions.")
+                await self.send_message(ctx.message.channel, "Bot is missing permissions.")
             except Forbidden:  # ree
                 await self.send_message(ctx.message.author, f"Command {ctx.command} failed due to missing permissions.")
             return
@@ -388,6 +430,7 @@ class FiftySix(Bot):
         embed.set_author(name='{0} <{0.id}>'.format(ctx.message.author), icon_url=ctx.message.author.avatar_url)
         embed.colour = discord.Color.red()
         embed.timestamp = dt.now()
+        print(''.join(tb))
         await self.send_message(self.get_channel("467063734800744448"), embed=embed)
 
 
@@ -400,4 +443,4 @@ if __name__ == "__main__":
     try:
         bot.run(key, reconnect=True)
     except Exception as error:
-        print(f"Bot Errored due to {error}, Resarting.")
+        print(f"Bot Errored due to {error}, Restarting.")
