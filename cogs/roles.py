@@ -7,6 +7,7 @@ from discord.utils import get
 from utils import first, first_or_default, is_mod, opt_str
 
 
+# noinspection PyUnusedFunction
 class Roles:
     def __init__(self, bot):
         self.bot: Bot = bot
@@ -83,5 +84,6 @@ class Roles:
         await self.bot.add_role(ctx.message.server, "DnD Player", mem)
 
 
+# noinspection PyUnusedFunction
 def setup(bot):
     bot.add_cog(Roles(bot))

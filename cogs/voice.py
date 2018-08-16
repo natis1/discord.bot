@@ -7,6 +7,7 @@ from discord.ext.commands import Bot, command
 from discord.voice_client import StreamPlayer
 
 
+# noinspection PyUnusedFunction
 class Voice:
     def __init__(self, bot):
         self.bot: Bot = bot
@@ -115,5 +116,6 @@ class Voice:
         voice and await voice.disconnect()
 
 
+# noinspection PyUnusedFunction
 def setup(bot):
     bot.add_cog(Voice(bot))

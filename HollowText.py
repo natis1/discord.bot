@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import os
-from requests import get
 from distutils.util import strtobool as sbool
+
 from PIL import Image
 
 ImageUrls = {
@@ -50,7 +50,8 @@ ImageUrls = {
 }
 
 excludeChars = {"?": "questionMark", "'": "apostrophe", ".": "periodDot", ",": "comma"}
-excludeReverse = { v: k for k, v in excludeChars.items() }
+
+excludeReverse = {v: k for k, v in excludeChars.items()}
 
 # if not os.path.exists("Images"):
 #    if not os.path.exists("Images"): os.makedirs("Images")
@@ -60,17 +61,26 @@ excludeReverse = { v: k for k, v in excludeChars.items() }
 #            res = get(url)
 #            file.write(res.content)
 #
-Images = { filename if filename not in excludeReverse.keys() else excludeReverse[filename]: Image.open(open(os.path.join("Images", filename), 'rb')) for filename in os.listdir("Images")}
+
+Images = {
+    filename
+    if filename not in excludeReverse.keys()
+    else excludeReverse[filename]: Image.open(
+        open(os.path.join("Images", filename), "rb")
+    )
+    for filename in os.listdir("Images")
+}
 
 
-def create_image(text, scaling=False):
+def create_image(text, to_scale=False):
     global Images
-    
-    m = Image.new("RGBA", (9000, 30000), (0, 0, 0, 0)) # transparent background
-    offset = maxY = maxX = y = j = 0
-    
-    def scale(img, width):
-        widthpercent = (width / float(img.size[0]))
+
+    m = Image.new("RGBA", (9000, 30000), (0, 0, 0, 0))  # transparent background
+    offset = max_y = max_x = y = j = 0
+
+    def scale(img):
+        width = 100
+        widthpercent = width / float(img.size[0])
         hsize = int((float(img.size[1]) * float(widthpercent)))
         img = img.resize((width, hsize), Image.BICUBIC)
         return img
@@ -83,34 +93,44 @@ def create_image(text, scaling=False):
     def space():
         nonlocal offset
         offset += 60
-        
-    if scaling is True:
-        Images = { letter: scale(img, 100) for letter, img in Images.items() }
+
+    if to_scale is True:
+        Images = {letter: scale(img) for letter, img in Images.items()}
 
     for i in text.upper():
-        if i != " " and i not in Images.keys():                   continue
-        if (i == " " and j%40 >= 30) or (j >= 40):     newline(); continue
-        if i == " ":                                   space();   continue
+        if i != " " and i not in Images.keys():
+            continue
+
+        if (i == " " and j % 40 >= 30) or (j >= 40):
+            newline()
+            continue
+
+        if i == " ":
+            space()
+            continue
 
         m.paste(Images[i], (offset, y))
         offset += Images[i].size[0]
-        maxY = max(Images[i].size[1], maxY)
-        j += 1;
+        max_y = max(Images[i].size[1], max_y)
+        j += 1
 
-        maxX = max(maxX, offset)
-            
-    m = m.crop((0, 0, maxX, maxY if maxY > y else y + maxY))
+        max_x = max(max_x, offset)
+
+    m = m.crop((0, 0, max_x, max_y if max_y > y else y + max_y))
     return m
 
-def create_image_file(text, fname, scaling=True):
-    create_image(text, scaling).save(fname)
 
-if __name__ == '__main__':
+def create_image_file(text, file_name):
+    create_image(text, True).save(file_name)
+
+
+if __name__ == "__main__":
     scaling = None
     while not (scaling is True or scaling is False):
+        # noinspection PyBroadException
         try:
             scaling = bool(sbool(input("Scale letters up?: ")))
-        except:
+        except Exception:
             pass
     fname = input("Save file as (needs file extension): ")
-    create_image(input("Enter word to convert: "), scaling=scaling).save(str(fname))
+    create_image(input("Enter word to convert: "), to_scale=scaling).save(str(fname))

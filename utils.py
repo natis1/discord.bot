@@ -9,23 +9,22 @@ from discord import Colour, Embed, Member
 from emoji import UNICODE_EMOJI
 from datetime import datetime as dt
 
-reg = re.compile('<:\w*:\w*>', re.IGNORECASE)
-reg2 = re.compile(':\w*:', re.IGNORECASE)
-with open('precepts') as f:
-    precepts = [x.strip('\n') for x in f.readlines()]
+reg = re.compile("<:\w*:\w*>", re.IGNORECASE)
+reg2 = re.compile(":\w*:", re.IGNORECASE)
+with open("precepts") as f:
+    precepts = [x.strip("\n") for x in f.readlines()]
 regInd = "	🇦	🇧	🇨	🇩	🇪	🇫	🇬	🇭	🇮	🇯	🇰	🇱	🇲	🇳	🇴	🇵	🇶	🇷	🇸	🇹	🇺	🇻	🇼	🇽	🇾🇿"
 
 
 def get_utc_date(string: str, tz: str = "") -> dt:
     """Gets a UTC datetime object from a string"""
-    data_settings = \
-        {
-            'TO_TIMEZONE':              'UTC',
-            'RETURN_AS_TIMEZONE_AWARE': False,
-            'PREFER_DATES_FROM':        'past'
-        }
+    data_settings = {
+        "TO_TIMEZONE": "UTC",
+        "RETURN_AS_TIMEZONE_AWARE": False,
+        "PREFER_DATES_FROM": "past",
+    }
     if tz:
-        data_settings['TIMEZONE'] = tz
+        data_settings["TIMEZONE"] = tz
 
     return parse(string, settings=data_settings)
 
@@ -40,15 +39,22 @@ async def say_embed(self, message):
 
 def is_mod(ctx):
     """Tells if the command user is a mod given a ctx for a message."""
-    if str(ctx.message.author) == "56#1363": return True
-    if str(ctx.message.author) == "PrehistoricBanana#0003": return True
-    if any([role.permissions.manage_messages for role in ctx.message.author.roles]): return True
+    if str(ctx.message.author) == "56#1363":
+        return True
+    if str(ctx.message.author) == "PrehistoricBanana#0003":
+        return True
+    if any([role.permissions.manage_messages for role in ctx.message.author.roles]):
+        return True
 
 
 def is_emoji(emoji: str):
     """Returns whether or not a string is emoji"""
-    if emoji in UNICODE_EMOJI or reg.match(emoji) or reg2.match(
-            emoji) or emoji in regInd:
+    if (
+        emoji in UNICODE_EMOJI
+        or reg.match(emoji)
+        or reg2.match(emoji)
+        or emoji in regInd
+    ):
         return True
     else:
         return False
@@ -56,7 +62,7 @@ def is_emoji(emoji: str):
 
 def is_int(s) -> bool:
     """Returns whether or not a number is an integer."""
-    if s[0] in ('-', '+'):
+    if s[0] in ("-", "+"):
         return s[1:].isdigit()
     return s.isdigit()
 

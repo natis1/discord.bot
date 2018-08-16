@@ -8,6 +8,7 @@ from discord.ext.commands import Bot, command
 from utils import afilter, get_avatar, get_nick, is_mod
 
 
+# noinspection PyUnusedFunction
 class Util:
     def __init__(self, bot):
         self.bot: Bot = bot
@@ -89,5 +90,6 @@ class Util:
         await self.bot.say("``` ```")
 
 
+# noinspection PyUnusedFunction
 def setup(bot):
     bot.add_cog(Util(bot))

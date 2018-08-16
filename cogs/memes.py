@@ -9,6 +9,7 @@ from HollowText import create_image_file
 from utils import is_emoji, is_int, is_mod, make_embed, precepts, text_embed
 
 
+# noinspection PyUnusedFunction
 class Memes:
     def __init__(self, bot):
         self.bot: Bot = bot
@@ -80,7 +81,7 @@ class Memes:
     async def image_maker(self, channel: xd, message: str):
         """Outputs text as stiched images of Hollow Knight letters, if it fails split it in two and try again"""
         path = join(tempfile.gettempdir(), "meme.png")
-        create_image_file(message, path, scaling=True)
+        create_image_file(message, path)
         try:
             await self.bot.send_file(channel, path)
         except HTTPException as e:
@@ -94,5 +95,6 @@ class Memes:
         await self.image_maker(ctx.message.channel, message)
 
 
+# noinspection PyUnusedFunction
 def setup(bot):
     bot.add_cog(Memes(bot))

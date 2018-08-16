@@ -4,6 +4,7 @@ from types import GeneratorType
 from discord.ext.commands import Bot, command
 
 
+# noinspection PyUnusedFunction
 class Developer:
     def __init__(self, bot):
         self.bot: Bot = bot
@@ -54,5 +55,6 @@ class Developer:
         print(f"Loading cog {cog}")
 
 
+# noinspection PyUnusedFunction
 def setup(bot):
     bot.add_cog(Developer(bot))
