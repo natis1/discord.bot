@@ -75,7 +75,7 @@ Images = {
 def create_image(text, to_scale=False):
     global Images
 
-    m = Image.new("RGBA", (9000, 30000), (0, 0, 0, 0))  # transparent background
+    m = Image.new("RGBA", (6000, 5000), (0, 0, 0, 0))  # transparent background
     offset = max_y = max_x = y = j = 0
 
     def scale(img):

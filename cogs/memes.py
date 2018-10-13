@@ -1,8 +1,10 @@
 import tempfile
+from contextlib import suppress
 from os.path import join
 from random import choice, randint
 
-from discord import HTTPException
+from discord import HTTPException, Message, Embed, Channel
+from discord.client import WaitedReaction
 from discord.ext.commands import Bot, BucketType, command, cooldown
 
 from HollowText import create_image_file
@@ -13,6 +15,11 @@ from utils import is_emoji, is_int, is_mod, make_embed, precepts, text_embed
 class Memes:
     def __init__(self, bot):
         self.bot: Bot = bot
+
+    @command()
+    @cooldown(1, 5, BucketType.user)
+    async def about(self):
+        await self.bot.say("56 but bot v1.0 by 56.\nBrought to you by the void in collaboration with the mothposters!")
 
     @command()
     @cooldown(1, 5, BucketType.user)
@@ -78,21 +85,62 @@ class Memes:
                                             "/450123677359669248 "
                                             "/unknown.png"))
 
-    async def image_maker(self, channel: xd, message: str):
+    async def image_maker(self, channel: xd, message: str, it = 0):
         """Outputs text as stiched images of Hollow Knight letters, if it fails split it in two and try again"""
         path = join(tempfile.gettempdir(), "meme.png")
-        create_image_file(message, path)
         try:
+            create_image_file(message, path)
             await self.bot.send_file(channel, path)
-        except HTTPException as e:
-            await self.image_maker(channel, message[:len(message) // 2])
-            await self.image_maker(channel, message[len(message) // 2:])
+        except (SystemError, HTTPException, MemoryError) as e:
+            try:
+                if (it > 5): return
+                await self.image_maker(channel, message[:len(message) // 2], it = it + 1)
+                await self.image_maker(channel, message[len(message) // 2:], it = it + 1)
+            except RecursionError:
+                return
 
     @command(aliases=["htext", "htxt", "hollowtext", "hollowText", "hktext"], pass_context=True)
     @cooldown(1, 5, BucketType.user)
     async def hollow_text(self, ctx, *, message: str):
         """Outputs text as stiched images of Hollow Knight letters"""
         await self.image_maker(ctx.message.channel, message)
+
+    @command()
+    async def delet_meme(self, channel, msg):
+        x = "❌"
+
+        delet_channel = self.bot.get_channel("474594963359924235")
+
+        channel: Channel = self.bot.get_channel(self.bot.command_channels[channel])
+        k: Message = await self.bot.get_message(channel, msg)
+
+        e = Embed(title="Delete?")
+
+        if k.attachments:
+            e.set_image(url=k.attachments[0]["url"])
+        if k.embeds:
+            with (suppress(IndexError, KeyError)):
+                e.set_image(url=k.embeds[0]["image"]["url"])
+
+        msg = await self.bot.send_message(delet_channel, embed=e)
+
+        self.bot.add_reaction(msg, x)
+        self.bot.add_reaction(msg, "✅")
+
+        while True:
+            r: WaitedReaction = await self.bot.wait_for_reaction(emoji=x)
+
+            if r is None:
+                continue
+
+            if r.reaction.emoji != "✅" and r.reaction.emoji != x:
+                continue
+
+            if r.reaction.count >= 2:
+                if r.reaction.emoji == "✅":
+                    await self.bot.delete_message(k)
+                await self.bot.delete_message(msg)
+                return
 
 
 # noinspection PyUnusedFunction

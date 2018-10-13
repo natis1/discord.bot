@@ -13,8 +13,8 @@ class Developer:
     async def kill(self, ctx):
         """Developer only command. Don't bother."""
         # Kills the bot
-        if str(ctx.message.author) != "56#1363": return
-        exit(0)
+        if (str(ctx.message.author) != "56#1363" or str(ctx.message.author) != "Avenging Angle#0272"): return
+        print("Please kill the bot by sshing to radiance.host and attaching to the tmux session it is running it.")
 
     @command(pass_context=True, aliases=["ctx", "eval"])
     async def eval_ctx(self, ctx, *, msg: str):
@@ -47,7 +47,7 @@ class Developer:
 
     @command(pass_context=True)
     async def reload_cog(self, ctx, cog: str):
-        if str(ctx.message.author) != "56#1363": return
+        if (str(ctx.message.author) != "56#1363" or str(ctx.message.author) != "Avenging Angle#0272"): return
         print(f"Reloading cog {cog}")
         self.bot.unload_extension(f"cogs.{cog}")
         print(f"Unloading cog {cog}")

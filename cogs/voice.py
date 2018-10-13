@@ -6,6 +6,8 @@ from discord import Channel, Embed
 from discord.ext.commands import Bot, command
 from discord.voice_client import StreamPlayer
 
+from functools import partial
+
 
 # noinspection PyUnusedFunction
 class Voice:
@@ -68,7 +70,7 @@ class Voice:
         await self.play_video(ctx, voice, query)
 
     def play_next(self, ctx):
-        asyncio.run_coroutine_threadsafe(self.play_queue(ctx), self.bot.loop).result()
+        self.bot.loop.call_soon_threadsafe(partial(self.play_queue(ctx)))
 
     @staticmethod
     def get_voice(ctx):

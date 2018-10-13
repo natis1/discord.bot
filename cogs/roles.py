@@ -15,17 +15,15 @@ class Roles:
     # (A,l, i, a, s, e, s): "Role"
     roles = \
         {
-            ("moths", "radiance", "moth", "mothkin"):             "Mothkin",
+            ("moths", "radiance", "moth", "mothkin"):             "Moths",
             ("lifeblood", "wheelchair", "♿"):                     "Lifeblood",
             ("grimm", "grimmkin"):                                "Grimmkin",
             ("pale king", "palace resident", "palace residents"): "Palace Residents",
-            ("hiveling", "bee"):                                  "Hiveling",
+            ("hiveling", "bee"):                                  "Bees",
             ("void", "Void"):                                     "Void",
             ("moss", "mosskin", "unn"):                           "Mosskin",
             ("mantis", "mantis youth"):                           "Mantis",
             ("archiver", "archivers", "monomon"):                 "Archivers",
-            ("weavers", "faeren", "spidesr"):                     "Weavers"
-
         }
 
     @command(pass_context=True)
@@ -36,7 +34,7 @@ class Roles:
         show = role == "show_roles"
 
         if not get(user.roles, name="Wanderers") and not show:
-            await self.bot.say("You already have a role, u dungo")
+            await self.bot.say("You already have a role, ask a staff member to switch!")
             return
 
         if role in chain(*self.roles):

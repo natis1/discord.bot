@@ -9,17 +9,17 @@ from os.path import isfile
 from random import choice, randint
 from typing import Dict, List
 
-import discord
 from discord import (
     Channel,
+    Color,
     Colour,
     Embed,
     Forbidden,
     HTTPException,
-    Message,
     Permissions,
+    errors,
+    utils,
 )
-from discord.client import WaitedReaction
 from discord.ext.commands import (
     BadArgument,
     Bot,
@@ -32,6 +32,7 @@ from discord.ext.commands import (
     cooldown,
     when_mentioned_or,
 )
+from discord.utils import get
 
 # noinspection PyProtectedMember
 from discord.ext.commands.bot import _get_variable as get_var
@@ -39,6 +40,7 @@ from discord.ext.commands.bot import _get_variable as get_var
 from data import conrad_urls
 from utils import first, first_or_default, is_mod, make_embed
 
+vesselMessageCounter = 0
 
 # noinspection PyUnusedFunction
 class FiftySix(Bot):
@@ -97,6 +99,9 @@ class FiftySix(Bot):
         "faerenpls": "465897072743415838",
         "finchpls": "466634821334990859",
         "paperspls": "465897086425104384",
+        "mothlove": "500530402864136212",
+        "beelove": "500530084407541770",
+        "vessellove": "500530073426984960",
         "jonnypls": "serialized",
     }
 
@@ -160,7 +165,6 @@ class FiftySix(Bot):
         "repeat",
         "invite",
         "dice",
-        "delet_meme",
     ]
 
     async def on_ready(self):
@@ -286,7 +290,7 @@ class FiftySix(Bot):
             setattr(permissions, i, True)
 
         await self.say(
-            f"<{discord.utils.oauth_url('410926210017656852', permissions=permissions)}>"
+            f"<{utils.oauth_url('410926210017656852', permissions=permissions)}>"
         )
 
     server_prefix: Dict[str, str] = {
@@ -294,7 +298,6 @@ class FiftySix(Bot):
         "453375619799973898": "&",
     }
 
-    void_server = "453739385683312650"
     void_channel = "459925254559629312"
 
     async def add_role(self, server, role_name, member):
@@ -320,29 +323,47 @@ class FiftySix(Bot):
         if message.content[:9] == "oxyl play":
             message.content = "!play" + message.content[9:]
 
+        global vesselMessageCounter
+
+        if (message.server
+            and message.server.id == "459911387490025493"
+            and any(True for x in message.author.roles if x.id == "496892045525254145")
+        ):
+            vesselMessageCounter = vesselMessageCounter + 1
+            if (vesselMessageCounter % 50 == 10 or vesselMessageCounter % 50 == 20) :
+                print("Switching vessel colors")
+                role = get(message.author.roles, id="496892045525254145")
+                if role.colour.value != 1:
+                    await self.edit_role(message.server, role, colour=Colour(0x000001))
+                else:
+                    color = Colour(0xffffff)
+                    await self.edit_role(message.server, role, colour=color)
+
+        if (message.server
+            and message.server.id == "459911387490025493"
+            and any(True for x in message.author.roles if x.id == "459937734950125569")
+        ):
+            mothrole = get(message.author.roles, id="459937734950125569")
+            if (randint(0, 39) == 0):
+                print("Fancy moth role color")
+                if mothrole.color.value == 0:
+                    await self.edit_role(message.server, mothrole, colour=Colour(0xfff299))
+            else:
+                if mothrole.color.value != 0:
+                    await self.edit_role(message.server, mothrole, colour=Colour(0x000000))
+
         # Normal running of commands
         await self.process_commands(message)
 
-        if (
-            message.server.id == self.void_server
-            or message.channel.id == self.void_channel
-        ):
+        if message.channel.id == "499673462818996225":
+            await asyncio.sleep(10)
+            if(message.pinned): return
+            await self.delet_this(message, 0)
+
+        if message.channel.id == self.void_channel:
             # Delete void server messages after 6.9420 seconds
             await asyncio.sleep(6.9420)
             await self.delet_this(message, 0)
-
-    multi_server = "459911387490025493"
-
-    async def on_member_join(self, member):
-        """Automatically gives void role to new members on void server"""
-        if member.server.id == self.void_server:
-            await self.add_roles(member, member.server.role_hierarchy[2])
-        elif member.server.id != self.multi_server:
-            return
-        await self.add_roles(
-            member,
-            list(filter(lambda x: x.name == "Wanderers", member.server.roles))[0],
-        )
 
     # noinspection PyUnusedLocal
     async def on_command(self, cmd, ctx):
@@ -392,49 +413,12 @@ class FiftySix(Bot):
         """
         try:
             await self.delete_message(message)
-        except discord.errors.NotFound:
+        except errors.NotFound:
             pass
-        except discord.errors.HTTPException:
+        except errors.HTTPException:
             if num > 15:
                 return
             await self.delet_this(message, num + 1)
-
-    @command()
-    async def delet_meme(self, channel, msg):
-        x = "❌"
-
-        delet_channel = self.get_channel("474594963359924235")
-
-        channel: Channel = self.get_channel(self.command_channels[channel])
-        k: Message = await self.get_message(channel, msg)
-
-        e = Embed(title="Delete?")
-
-        if k.attachments:
-            e.set_image(url=k.attachments[0]["url"])
-        if k.embeds:
-            with (suppress(IndexError, KeyError)):
-                e.set_image(url=k.embeds[0]["image"]["url"])
-
-        msg = await self.send_message(delet_channel, embed=e)
-
-        self.add_reaction(msg, x)
-        self.add_reaction(msg, "✅")
-
-        while True:
-            r: WaitedReaction = await self.wait_for_reaction(emoji=x)
-
-            if r is None:
-                continue
-
-            if r.reaction.emoji != "✅" and r.reaction.emoji != x:
-                continue
-
-            if r.reaction.count >= 2:
-                if r.reaction.emoji == "✅":
-                    await self.delete_message(k)
-                await self.delete_message(msg)
-                return
 
     async def on_command_error(self, e, ctx: Context):
         if isinstance(
@@ -463,7 +447,7 @@ class FiftySix(Bot):
             return
 
         tb = traceback.format_exception(type(e), e.__cause__, e.__traceback__)
-        embed = discord.Embed()
+        embed = Embed()
         embed.title = "**__Command Error__**"
         embed.description = "Shard: **{0}**".format(self.shard_id)
         embed.add_field(name="Command", value="{0}".format(ctx.command.name))
@@ -488,7 +472,7 @@ class FiftySix(Bot):
             name="{0} <{0.id}>".format(ctx.message.author),
             icon_url=ctx.message.author.avatar_url,
         )
-        embed.colour = discord.Color.red()
+        embed.colour = Color.red()
         embed.timestamp = dt.now()
         print("".join(tb))
         await self.send_message(self.get_channel("467063734800744448"), embed=embed)

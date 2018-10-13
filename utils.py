@@ -41,7 +41,7 @@ def is_mod(ctx):
     """Tells if the command user is a mod given a ctx for a message."""
     if str(ctx.message.author) == "56#1363":
         return True
-    if str(ctx.message.author) == "PrehistoricBanana#0003":
+    if str(ctx.message.author) == "Avenging Angle#0272":
         return True
     if any([role.permissions.manage_messages for role in ctx.message.author.roles]):
         return True
