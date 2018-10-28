@@ -426,7 +426,7 @@ class FiftySix(Bot):
             and any(True for x in message.author.roles if x.id == "459937734950125569")
         ):
             mothrole = get(message.author.roles, id="459937734950125569")
-            if (randint(0, 39) == 0):
+            if (randint(0, 79) == 0):
                 print("Fancy moth role color")
                 if mothrole.color.value == 0:
                     await self.edit_role(message.server, mothrole, colour=Colour(0xfff299))
