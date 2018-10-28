@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from discord import Message, User
+from discord import Message, User, Embed, Color, Colour
 from discord.ext.commands import Bot, command
 
 from utils import get_utc_date, is_mod
@@ -16,6 +16,16 @@ class Moderator:
         """Clear the given number of messages. Optional user param."""
         if not is_mod(ctx): return
         counter = 0
+
+        channel = ctx.message.channel
+        if channel.server.id in self.bot.audit_log.keys():
+            embedded = Embed(
+                title="Bulk delete in " + channel.name,
+                description=str(num) + " messages deleted in " + channel.mention,
+                colour=Colour.red(),
+            )
+            await self.bot.send_message(self.bot.get_channel(self.bot.audit_log[channel.server.id]), embed=embedded)
+
 
         def check_user(msg: Message):
             nonlocal counter
@@ -36,7 +46,7 @@ class Moderator:
         except Exception as e:
             await self.bot.say(e)
 
-    @command(pass_context=True, aliases=["deleteTime", "delTime"])
+    #@command(pass_context=True, aliases=["deleteTime", "delTime"])
     async def del_time(self, ctx, after, before=None):
         """Deletes messages given a time at which to start and an optional time at which to end"""
         if not is_mod(ctx): return
@@ -53,7 +63,7 @@ class Moderator:
         except Exception as e:
             await self.bot.say(e)
 
-    @command(pass_context=True, aliases=["deleteTimeUser", "delTimeUser"])
+    #@command(pass_context=True, aliases=["deleteTimeUser", "delTimeUser"])
     async def del_time_user(self, ctx, after, user: User):
         """Deletes messages given a time at which to start and an optional time at which to end"""
         if not is_mod(ctx): return
@@ -69,7 +79,7 @@ class Moderator:
         except Exception as e:
             await self.bot.say(e)
 
-    @command(pass_context=True, aliases=["deleteTimeTZ", "delTimeTZ"])
+    #@command(pass_context=True, aliases=["deleteTimeTZ", "delTimeTZ"])
     async def del_time_tz(self, ctx, tzi, after, before=None):
         """Deletes messages given a time zone, a time at which to start, and an optional time at which to end"""
         if not is_mod(ctx): return

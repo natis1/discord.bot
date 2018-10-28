@@ -4,6 +4,7 @@ from datetime import datetime as dt
 
 from discord import Channel, Colour, Embed, Message
 from discord.ext.commands import Bot, command
+from discord.ext.commands.converter import MemberConverter
 
 from utils import afilter, get_avatar, get_nick, is_mod
 
@@ -12,6 +13,14 @@ from utils import afilter, get_avatar, get_nick, is_mod
 class Util:
     def __init__(self, bot):
         self.bot: Bot = bot
+
+    @command(pass_context=True)
+    async def avatar(self, ctx, *args):
+        urMum = MemberConverter(ctx, args[0]).convert() if len(args) > 0 and args[0] else ctx.message.author
+        e = Embed()
+        e.set_author(name=get_nick(urMum), icon_url=get_avatar(urMum))
+        e.set_image(url=get_avatar(urMum))
+        await self.bot.say(embed=e)
 
     @command(pass_context=True)
     async def copy_channel(self, ctx, from_channel: str, to_channel: Channel, to_filter=None, limit=10000):

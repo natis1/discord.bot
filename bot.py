@@ -142,11 +142,13 @@ class FiftySix(Bot):
         with open(key[:-3], "wb") as f:
             pickle.dump(self.command_messages[key], f)
 
+
     @command(pass_context=True)
     async def reload(self, ctx, r_command):
         if not is_mod(ctx):
             return
 
+        print("Reloading because mod used command!")
         if r_command == "all":
             for i in self.command_channels.keys():
                 await self.load_command(i, self.command_channels[i], True)
@@ -230,6 +232,75 @@ class FiftySix(Bot):
         "459911387490025493": "460616352865189930",
     }
 
+    audit_log: Dict[str, str] = {
+        # "server_id": "channel_id"
+        "459911387490025493": "479641975318904842",
+    }
+
+    async def on_member_join(self, member):
+        if member.server.id not in self.audit_log.keys():
+            return
+        embedded = Embed(
+            title=f"Member joined: {str(member.name)}\#{str(member.discriminator)}",
+            description=member.mention + " " + member.display_name,
+            colour=Colour.red(),
+        )
+        await self.send_message(
+            self.get_channel(self.audit_log[member.server.id]), embed=embedded
+        )
+        await self.add_rank(member.server, "Wanderers", member)
+
+    async def on_member_remove(self, member):
+        if member.server.id not in self.audit_log.keys():
+            return
+        embedded = Embed(
+            title=f"Member left: {str(member.name)}\#{str(member.discriminator)}",
+            description=member.mention + " " + member.display_name,
+            colour=Colour.red(),
+        )
+        await self.send_message(
+            self.get_channel(self.audit_log[member.server.id]), embed=embedded
+        )
+
+    async def on_member_update(self, oldMember, newMember):
+        if newMember.server.id not in self.audit_log.keys():
+            return
+        if (newMember.roles == oldMember.roles):
+            return
+        newRoles = " `"
+
+        if (len(newMember.roles) > len(oldMember.roles)):
+            sa = set(oldMember.roles)
+            addedRolelist = [x for x in newMember.roles if x not in sa]
+            for r in addedRolelist:
+                newRoles += r.name + "`"
+
+            embedded = Embed(
+                title=f"{str(newMember.name)}\#{str(newMember.discriminator)}",
+                description=f"**<@{str(newMember.id)}> was given the" + newRoles + " role**",
+                colour=Colour.red(),
+            )
+            await self.send_message(
+                self.get_channel(self.audit_log[newMember.server.id]), embed=embedded
+            )
+            return
+
+        sr = set(newMember.roles)
+        removedRolelist = [x for x in oldMember.roles if x not in sr]
+        for r in removedRolelist:
+            newRoles += r.name + "`"
+
+        embedded = Embed(
+            title=f"{str(newMember.name)}\#{str(newMember.discriminator)}",
+            description=f"**<@{str(newMember.id)}> was removed from the" + newRoles + " role**",
+            colour=Colour.red(),
+        )
+        await self.send_message(
+            self.get_channel(self.audit_log[newMember.server.id]), embed=embedded
+        )
+
+
+
     async def on_message_delete(self, msg):
         """Log message deletes to respective log channels as specified in server_log dict"""
         if msg.server.id not in self.server_log.keys():
@@ -300,6 +371,20 @@ class FiftySix(Bot):
 
     void_channel = "459925254559629312"
 
+
+    async def add_rank(self, server, rank_name, member):
+        sranks = list(server.roles)
+        added_rank = first(sranks, lambda x: x.name == rank_name)
+        ranks = [added_rank] + [x for x in member.roles]
+        await self.replace_roles(member, *ranks)
+
+    async def remove_rank(self, server, rank_name, member):
+        sranks = list(server.roles)
+        badrank = first_or_default(sranks, lambda x: x.name == rank_name)
+        ranks = [x for x in member.roles if x != badrank]
+        await self.replace_roles(member, *ranks)
+
+
     async def add_role(self, server, role_name, member):
         sroles = list(server.roles)
 
@@ -319,9 +404,6 @@ class FiftySix(Bot):
                 message.content = "!" + message.content[1:]
             elif message.content[0] == "!":
                 return
-
-        if message.content[:9] == "oxyl play":
-            message.content = "!play" + message.content[9:]
 
         global vesselMessageCounter
 
