@@ -18,7 +18,7 @@ class Voice:
 
     url_regex = re.compile("^(https?):/(/www.|/)youtu(be.com|\.be)/[^\s/$.?#].[^\s]*$")
 
-    @command(pass_context=True)
+#    @command(pass_context=True)
     async def play(self, ctx, *, url_query: str = ""):
         """Plays a song if given a url, otherwise resumes a paused song if there is one"""
 
@@ -79,7 +79,7 @@ class Voice:
     def get_player(self, ctx):
         return self.players.get(ctx.message.author.voice.voice_channel)
 
-    @command(pass_context=True, aliases=["queue", "q"])
+#    @command(pass_context=True, aliases=["queue", "q"])
     async def queue_check(self, ctx):
         embed = Embed()
         embed.title = "Queue"
@@ -89,30 +89,30 @@ class Voice:
         embed.description += "\n```"
         await self.bot.say(embed=embed)
 
-    @command(pass_context=True, aliases=["nowplaying"])
+#    @command(pass_context=True, aliases=["nowplaying"])
     async def now_playing(self, ctx):
         embed = Embed()
         embed.title = "Now Playing"
         embed.description = self.get_player(ctx) and self.get_player(ctx).title
         await self.bot.say(embed=embed)
 
-    @command(pass_context=True)
+#    @command(pass_context=True)
     async def skip(self, ctx):
         """Skip a song"""
         self.get_player(ctx) and self.get_player(ctx).stop()
 
-    @command(pass_context=True)
+#    @command(pass_context=True)
     async def pause(self, ctx):
         """Pause the music"""
         self.get_player(ctx) and self.get_player(ctx).pause()
 
-    @command(pass_context=True)
+#    @command(pass_context=True)
     async def volume(self, ctx, vol: int):
         """Set player volume"""
         if self.get_player(ctx) is None: return
         self.get_player(ctx).volume = vol
 
-    @command(pass_context=True, aliases=["disconnect, leave"])
+#    @command(pass_context=True, aliases=["disconnect, leave"])
     async def stop(self, ctx):
         voice = self.get_voice(ctx)
         voice and await voice.disconnect()

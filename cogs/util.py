@@ -2,17 +2,115 @@ from contextlib import suppress
 from copy import deepcopy
 from datetime import datetime as dt
 
-from discord import Channel, Colour, Embed, Message
+from discord import Channel, Client, Colour, Embed, Message, Emoji, Reaction
 from discord.ext.commands import Bot, command
 from discord.ext.commands.converter import MemberConverter
+from discord.utils import get
 
 from utils import afilter, get_avatar, get_nick, is_mod
 
+import asyncio
 
 # noinspection PyUnusedFunction
 class Util:
     def __init__(self, bot):
         self.bot: Bot = bot
+
+    @command(pass_context=True)
+    async def unmute(self, ctx, *args):
+        member = MemberConverter(ctx, args[0]).convert() if len(args) > 0 and args[0] else ctx.message.author
+        server = ctx.message.server
+        if server.id not in self.bot.audit_log.keys() or not is_mod(ctx):
+            return
+        if not get(member.roles, name="Muted"):
+            await self.bot.say(f"The user: {str(member.name)}\#{str(member.discriminator)} was not muted.")
+            return
+        await self.bot.remove_rank(server, "Muted", member)
+        e = Embed(
+            title=f"Member: {str(member.name)}\#{str(member.discriminator)} unmuted",
+            description=member.mention + " " + member.display_name,
+            colour=0xFFFF00,
+        )
+        e.set_author(name=get_nick(member), icon_url=get_avatar(member))
+        e.set_thumbnail(url=get_avatar(member))
+        await self.bot.send_message(
+            self.bot.get_channel(self.bot.audit_log[member.server.id]), embed=e
+        )
+        emojimeme=get(self.bot.get_all_emojis(), name='gladrad')
+        await self.bot.add_reaction(ctx.message, emojimeme )
+
+
+
+    async def unmuteinternal(self, server, member, time):
+        await asyncio.sleep(int(time) * 60)
+        if not get(member.roles, name="Muted"):
+            return
+        await self.bot.remove_rank(server, "Muted", member)
+        e = Embed(
+            title=f"Member: {str(member.name)}\#{str(member.discriminator)} unmuted because moths are better than mantises.",
+            description=member.mention + " " + member.display_name,
+            colour=0xFFFF00,
+        )
+        e.set_author(name=get_nick(member), icon_url=get_avatar(member))
+        e.set_thumbnail(url=get_avatar(member))
+        await self.bot.send_message(
+            self.bot.get_channel(self.bot.audit_log[member.server.id]), embed=e
+        )
+
+
+    @command(pass_context=True)
+    async def mute(self, ctx, *args):
+        member = MemberConverter(ctx, args[0]).convert() if len(args) > 0 and args[0] else ctx.message.author
+        server = ctx.message.server
+        if server.id not in self.bot.audit_log.keys() or not is_mod(ctx):
+            return
+        if len(args) < 2 or not args[1].isdigit():
+            await self.bot.say("Invalid argument. Please specify a user and a time in minutes as a number.")
+            return
+        if get(member.roles, name="Muted"):
+            await self.bot.say(f"The user: {str(member.name)}\#{str(member.discriminator)} was already muted.")
+            return
+        e = Embed(
+            title=f"Member: {str(member.name)}\#{str(member.discriminator)} muted for {args[1]} minute(s)",
+            description=member.mention + " " + member.display_name,
+            colour=Colour.red(),
+        )
+        e.set_author(name=get_nick(member), icon_url=get_avatar(member))
+        e.set_thumbnail(url=get_avatar(member))
+        await self.bot.send_message(
+            self.bot.get_channel(self.bot.audit_log[member.server.id]), embed=e
+        )
+        await self.bot.add_rank(server, "Muted", member)
+        emojimeme=get(self.bot.get_all_emojis(), name='jellysad')
+        await self.bot.add_reaction(ctx.message, emojimeme )
+        await self.unmuteinternal(server, member, args[1])
+
+    @command(pass_context=True)
+    async def whois(self, ctx, *args):
+        member = MemberConverter(ctx, args[0]).convert() if len(args) > 0 and args[0] else ctx.message.author
+        server = ctx.message.server
+
+        e = Embed()
+        e.set_author(name=get_nick(member), icon_url=get_avatar(member))
+        e.description=member.mention
+        e.set_thumbnail(url=get_avatar(member))
+        e.add_field(name= "Status", value=member.status)
+        e.add_field(name= "Joined", value=member.joined_at.strftime("%a %Y-%m-%d %H:%MUTC"))
+        joinpos=1
+        for m in server.members:
+            if m.joined_at < member.joined_at:
+                joinpos += 1
+
+        e.add_field(name= "Join Position", value=str(joinpos))
+
+        e.add_field(name= "Registered", value=member.created_at.strftime("%a %Y-%m-%d %H:%MUTC"))
+        roleString = ""
+        for rm in member.roles[1:]:
+            roleString += rm.mention + "\t"
+        e.add_field(name= "Roles (" + str(len(member.roles) - 1) + ")", value=roleString)
+
+        await self.bot.say(embed=e)
+
 
     @command(pass_context=True)
     async def avatar(self, ctx, *args):

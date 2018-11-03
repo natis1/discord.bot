@@ -11,6 +11,7 @@ from typing import Dict, List
 
 from discord import (
     Channel,
+    Client,
     Color,
     Colour,
     Embed,
@@ -243,8 +244,9 @@ class FiftySix(Bot):
         embedded = Embed(
             title=f"Member joined: {str(member.name)}\#{str(member.discriminator)}",
             description=member.mention + " " + member.display_name,
-            colour=Colour.red(),
+            colour=Colour.green(),
         )
+        embedded.set_thumbnail(url=member.avatar_url)
         await self.send_message(
             self.get_channel(self.audit_log[member.server.id]), embed=embedded
         )
@@ -258,6 +260,7 @@ class FiftySix(Bot):
             description=member.mention + " " + member.display_name,
             colour=Colour.red(),
         )
+        embedded.set_thumbnail(url=member.avatar_url)
         await self.send_message(
             self.get_channel(self.audit_log[member.server.id]), embed=embedded
         )
@@ -273,13 +276,16 @@ class FiftySix(Bot):
             sa = set(oldMember.roles)
             addedRolelist = [x for x in newMember.roles if x not in sa]
             for r in addedRolelist:
+                if r.name == "Muted":
+                    return
                 newRoles += r.name + "`"
 
             embedded = Embed(
                 title=f"{str(newMember.name)}\#{str(newMember.discriminator)}",
                 description=f"**<@{str(newMember.id)}> was given the" + newRoles + " role**",
-                colour=Colour.red(),
+                colour=Colour.blue(),
             )
+            embedded.set_thumbnail(url=newMember.avatar_url)
             await self.send_message(
                 self.get_channel(self.audit_log[newMember.server.id]), embed=embedded
             )
@@ -288,13 +294,16 @@ class FiftySix(Bot):
         sr = set(newMember.roles)
         removedRolelist = [x for x in oldMember.roles if x not in sr]
         for r in removedRolelist:
+            if r.name == "Muted":
+                return
             newRoles += r.name + "`"
 
         embedded = Embed(
             title=f"{str(newMember.name)}\#{str(newMember.discriminator)}",
             description=f"**<@{str(newMember.id)}> was removed from the" + newRoles + " role**",
-            colour=Colour.red(),
+            colour=Colour.blue(),
         )
+        embedded.set_thumbnail(url=newMember.avatar_url)
         await self.send_message(
             self.get_channel(self.audit_log[newMember.server.id]), embed=embedded
         )
