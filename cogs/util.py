@@ -47,7 +47,7 @@ class Util:
             return
         await self.bot.remove_rank(server, "Muted", member)
         e = Embed(
-            title=f"Member: {str(member.name)}\#{str(member.discriminator)} unmuted because moths are better than mantises.",
+            title=f"{str(member.name)}\#{str(member.discriminator)}'s mute expired.",
             description=member.mention + " " + member.display_name,
             colour=0xFFFF00,
         )

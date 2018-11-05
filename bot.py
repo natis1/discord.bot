@@ -448,12 +448,12 @@ class FiftySix(Bot):
 
         if message.channel.id == "499673462818996225":
             await asyncio.sleep(10)
-            if(message.pinned): return
             await self.delet_this(message, 0)
 
         if message.channel.id == self.void_channel:
-            # Delete void server messages after 6.9420 seconds
+            # Delete void server messages after 6.9420 hours if not pinned
             await asyncio.sleep(6.9420)
+            if(message.pinned): return
             await self.delet_this(message, 0)
 
     # noinspection PyUnusedLocal
