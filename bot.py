@@ -103,6 +103,7 @@ class FiftySix(Bot):
         "mothlove": "500530402864136212",
         "beelove": "500530084407541770",
         "vessellove": "500530073426984960",
+        "grublove": "509262424751341569",
         "jonnypls": "serialized",
     }
 
