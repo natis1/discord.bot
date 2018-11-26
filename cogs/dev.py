@@ -21,7 +21,7 @@ class Developer:
         """Developer only command. Don't bother."""
         # Runs code
         # Used for debugging.
-        if str(ctx.message.author) != "56#1363": return
+        if str(ctx.message.author) != "56#1363" and str(ctx.message.author) != "Avenging_Angle#0272": return
         try:
             a = eval(msg)
 
@@ -39,7 +39,7 @@ class Developer:
         """Developer only command. Don't bother."""
         # Runs code
         # Used for debugging.
-        if str(ctx.message.author) != "56#1363": return
+        if str(ctx.message.author) != "56#1363" and str(ctx.message.author) != "Avenging_Angle#0272": return
         try:
             await self.bot.say(await exec(msg))
         except Exception as e:

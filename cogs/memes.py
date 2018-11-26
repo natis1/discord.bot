@@ -3,12 +3,13 @@ from contextlib import suppress
 from os.path import join
 from random import choice, randint
 
-from discord import HTTPException, Message, Embed, Channel
+from discord import HTTPException, Message, Embed, Channel, Client, Colour, Embed, Message, Emoji, Reaction
 from discord.client import WaitedReaction
 from discord.ext.commands import Bot, BucketType, command, cooldown
 
 from HollowText import create_image_file
 from utils import is_emoji, is_int, is_mod, make_embed, precepts, text_embed
+
 
 
 # noinspection PyUnusedFunction
@@ -19,7 +20,7 @@ class Memes:
     @command()
     @cooldown(1, 5, BucketType.user)
     async def about(self):
-        await self.bot.say("56 but bot v1.0 by 56.\nBrought to you by the void in collaboration with the mothposters!")
+        await self.bot.say("56 but bot v1.0 by 56.\nBrought to you by nugget in collaboration with the mothposters!")
 
     @command()
     @cooldown(1, 5, BucketType.user)
@@ -106,13 +107,17 @@ class Memes:
         await self.image_maker(ctx.message.channel, message)
 
     @command()
-    async def delet_meme(self, channel, msg):
+    async def delet_meme(self, msg):
         x = "❌"
+        chk = "✅"
 
-        delet_channel = self.bot.get_channel("474594963359924235")
-
-        channel: Channel = self.bot.get_channel(self.bot.command_channels[channel])
-        k: Message = await self.bot.get_message(channel, msg)
+        delet_channel = self.bot.get_channel("516676649627156481")
+        channel = self.bot.get_channel("516675581622878209")
+        try:
+            k: Message = await self.bot.get_message(channel, msg)
+        except Exception as ex:
+            await self.bot.say("Unable to delete <#516675581622878209> meme.")
+            return
 
         e = Embed(title="Delete?")
 
@@ -124,20 +129,20 @@ class Memes:
 
         msg = await self.bot.send_message(delet_channel, embed=e)
 
-        self.bot.add_reaction(msg, x)
-        self.bot.add_reaction(msg, "✅")
+        await self.bot.add_reaction(msg, chk)
+        await self.bot.add_reaction(msg, x)
 
         while True:
-            r: WaitedReaction = await self.bot.wait_for_reaction(emoji=x)
+            r: WaitedReaction = await self.bot.wait_for_reaction([x, chk])
 
             if r is None:
                 continue
 
-            if r.reaction.emoji != "✅" and r.reaction.emoji != x:
+            if r.reaction.emoji != chk and r.reaction.emoji != x:
                 continue
 
-            if r.reaction.count >= 2:
-                if r.reaction.emoji == "✅":
+            if r.reaction.count >= 4 or (any([role.permissions.manage_messages for role in r.user.roles]) and r.reaction.count >= 2):
+                if r.reaction.emoji == chk:
                     await self.bot.delete_message(k)
                 await self.bot.delete_message(msg)
                 return

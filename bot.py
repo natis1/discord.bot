@@ -91,10 +91,10 @@ class FiftySix(Bot):
                     )
                 return
 
-            await self.send_message(self.get_channel("467063734800744448"), e)
+            await self.send_message(self.get_channel("510729028752113667"), e)
 
     command_channels: Dict[str, str] = {
-        "meta": "467382508397527050",
+        "meta": "516675581622878209",
         "56pls": "465897058562211855",
         "bananapls": "465900714422435851",
         "faerenpls": "465897072743415838",
@@ -237,6 +237,7 @@ class FiftySix(Bot):
     audit_log: Dict[str, str] = {
         # "server_id": "channel_id"
         "459911387490025493": "479641975318904842",
+        "500529139888160768": "514190036283949076",
     }
 
     async def on_member_join(self, member):
@@ -422,7 +423,7 @@ class FiftySix(Bot):
             and any(True for x in message.author.roles if x.id == "496892045525254145")
         ):
             vesselMessageCounter = vesselMessageCounter + 1
-            if (vesselMessageCounter % 50 == 10 or vesselMessageCounter % 50 == 20) :
+            if (vesselMessageCounter % 50 == 26 or vesselMessageCounter % 50 == 1) :
                 print("Switching vessel colors")
                 role = get(message.author.roles, id="496892045525254145")
                 if role.colour.value != 1:
@@ -567,7 +568,7 @@ class FiftySix(Bot):
         embed.colour = Color.red()
         embed.timestamp = dt.now()
         print("".join(tb))
-        await self.send_message(self.get_channel("467063734800744448"), embed=embed)
+        await self.send_message(self.get_channel("510729028752113667"), embed=embed)
 
 
 bot = FiftySix(command_prefix=when_mentioned_or("!"), description="56 but bot")
