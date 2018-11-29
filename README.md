@@ -1,7 +1,10 @@
-<h2 align="center">Bot</h2>
+<h2 align="center">56 But Bot</h2>
 
 <p align="center">
-<a href="https://github.com/ambv/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 </p>
 
-it's a discord bot
+It's a discord bot
+
+Specificaly a discord bot for the hallownest discord server: https://discord.me/hallownest
+
+It provides all the usual functionality. Factions, music playing (need to uncomment code for that), memes, cute pictures of moths, clearing and logging.
