@@ -423,7 +423,7 @@ class FiftySix(Bot):
             and any(True for x in message.author.roles if x.id == "496892045525254145")
         ):
             vesselMessageCounter = vesselMessageCounter + 1
-            if (vesselMessageCounter % 50 == 26 or vesselMessageCounter % 50 == 1) :
+            if (vesselMessageCounter % 100 == 10 or vesselMessageCounter % 100 == 30) :
                 print("Switching vessel colors")
                 role = get(message.author.roles, id="496892045525254145")
                 if role.colour.value != 1:
@@ -437,7 +437,7 @@ class FiftySix(Bot):
             and any(True for x in message.author.roles if x.id == "459937734950125569")
         ):
             mothrole = get(message.author.roles, id="459937734950125569")
-            if (randint(0, 79) == 0):
+            if (randint(0, 100) == 0):
                 print("Fancy moth role color")
                 if mothrole.color.value == 0:
                     await self.edit_role(message.server, mothrole, colour=Colour(0xfff299))
