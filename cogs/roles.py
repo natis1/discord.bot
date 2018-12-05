@@ -21,7 +21,7 @@ class Roles:
             ("pale king", "palace resident", "palace residents"):           "Palace Residents",
             ("hiveling", "bee", "bees", "memer"):                           "Bees",
             ("void", "vessel", "friend"):                                   "Void",
-            ("moss", "mosskin", "unn", "plant"):                            "Mosskin",
+            ("moss", "mosskin", "unn", "plant"):                            "Moss",
             ("mantis", "mantis youth"):                                     "Mantis",
         }
 
