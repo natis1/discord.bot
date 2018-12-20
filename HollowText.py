@@ -2,6 +2,9 @@
 
 import os
 from distutils.util import strtobool as sbool
+import urllib
+import urllib.request
+import time
 
 from PIL import Image
 
@@ -53,14 +56,24 @@ excludeChars = {"?": "questionMark", "'": "apostrophe", ".": "periodDot", ",": "
 
 excludeReverse = {v: k for k, v in excludeChars.items()}
 
-# if not os.path.exists("Images"):
-#    if not os.path.exists("Images"): os.makedirs("Images")
-#    for letter, url in ImageUrls.items():
-#        with open(os.path.join("Images",
-#  letter if letter not in excludeChars.keys() else excludeChars[letter]), 'wb') as file:
-#            res = get(url)
-#            file.write(res.content)
-#
+hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+       'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+       'Accept-Encoding': 'none',
+       'Accept-Language': 'en-US,en;q=0.8',
+       'Connection': 'keep-alive'}
+
+if not os.path.exists("Images"):
+    if not os.path.exists("Images"): os.makedirs("Images")
+    for letter, url in ImageUrls.items():
+        with open(os.path.join("Images",
+letter if letter not in excludeChars.keys() else excludeChars[letter]), 'wb') as file:
+            opener = urllib.request.build_opener()
+            opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+            res = opener.open(url).read()
+            file.write(res)
+            time.sleep(0.5)
+
 
 Images = {
     filename
