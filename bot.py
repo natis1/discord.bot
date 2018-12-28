@@ -132,10 +132,6 @@ class FiftySix(Bot):
             return
 
         self.command_messages[key] = []
-        allmsgs = self.logs_from(
-            self.get_channel(val), limit=10000, before=dt.utcnow()
-        )
-        async for k in allmsgs:
 
         async for k in self.logs_from(
             self.get_channel(val), before=dt.utcnow(), limit=10000
