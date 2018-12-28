@@ -143,7 +143,9 @@ class Memes:
 
             if r.reaction.count >= 4 or (any([role.permissions.manage_messages for role in r.user.roles]) and r.reaction.count >= 2):
                 if r.reaction.emoji == chk:
+                    await self.bot.delete_message(msg)
                     await self.bot.delete_message(k)
+                    return
                 await self.bot.delete_message(msg)
                 return
 

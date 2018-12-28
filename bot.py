@@ -132,6 +132,11 @@ class FiftySix(Bot):
             return
 
         self.command_messages[key] = []
+        allmsgs = self.logs_from(
+            self.get_channel(val), limit=10000, before=dt.utcnow()
+        )
+        async for k in allmsgs:
+
         async for k in self.logs_from(
             self.get_channel(val), before=dt.utcnow(), limit=10000
         ):
@@ -140,6 +145,7 @@ class FiftySix(Bot):
             if k.embeds:
                 with (suppress(IndexError, KeyError)):
                     self.command_messages[key].append(k.embeds[0]["image"]["url"])
+        print("Loaded command channel: " + val)
 
         with open(key[:-3], "wb") as f:
             pickle.dump(self.command_messages[key], f)
@@ -437,7 +443,7 @@ class FiftySix(Bot):
             and any(True for x in message.author.roles if x.id == "459937734950125569")
         ):
             mothrole = get(message.author.roles, id="459937734950125569")
-            if (randint(0, 100) == 0):
+            if (randint(0, 140) == 5):
                 print("Fancy moth role color")
                 if mothrole.color.value == 0:
                     await self.edit_role(message.server, mothrole, colour=Colour(0xfff299))
