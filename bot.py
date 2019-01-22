@@ -4,7 +4,7 @@ import asyncio
 import pickle
 import traceback
 from contextlib import suppress
-from datetime import datetime as dt
+import datetime as dt
 from os.path import isfile
 from random import choice, randint
 from typing import Dict, List
@@ -104,6 +104,8 @@ class FiftySix(Bot):
         "beelove": "500530084407541770",
         "vessellove": "500530073426984960",
         "grublove": "509262424751341569",
+        "grimmlove": "528389441543340063",
+        "cursed": "528399623874936842",
         "jonnypls": "serialized",
     }
 
@@ -134,7 +136,7 @@ class FiftySix(Bot):
         self.command_messages[key] = []
 
         async for k in self.logs_from(
-            self.get_channel(val), before=dt.utcnow(), limit=10000
+            self.get_channel(val), before=(dt.datetime.utcnow() + dt.timedelta(5, 0)), limit=10000
         ):
             if k.attachments:
                 self.command_messages[key].append(k.attachments[0]["url"])
@@ -160,7 +162,7 @@ class FiftySix(Bot):
 
         await self.load_command(r_command, self.command_channels[r_command], True)
 
-    _cogs: List[str] = ["voice", "roles", "dev", "mod", "memes", "util"]
+    _cogs: List[str] = ["voice", "roles", "dev", "mod", "memes", "util", "time"]
 
     cmds: List[str] = [
         "reload",

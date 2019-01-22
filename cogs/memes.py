@@ -24,6 +24,11 @@ class Memes:
 
     @command()
     @cooldown(1, 5, BucketType.user)
+    async def art(self):
+        await self.bot.say("Did you know I'm an art collector? If you want to improve the bot, please submit your OC artwork or meta memes to https://discord.gg/5AnCR6p")
+
+    @command()
+    @cooldown(1, 5, BucketType.user)
     async def precept(self, *args):
         """Gives zote's precepts"""
         if args:

@@ -32,7 +32,7 @@ class Roles:
             ("game night", "gamer"):                 "Game Night",
         }
 
-    realroles = ["Moths", "Grimmkin", "Void", "Palace Residents", "Bees", "Mosskin", "Mantis"]
+    realroles = ["Moths", "Grimmkin", "Void", "Palace Residents", "Bees", "Moss", "Mantis"]
 
     @command(pass_context=True)
     async def factioninfo(self, ctx):
